@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl" id="htmlRoot">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <meta name="theme-color" content="#0a0a0f">
+    <title>داشبورد | Xray Panel</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="min-h-screen bg-black text-white pb-20">
+
+    <!-- پس‌زمینه -->
+    <div class="fixed inset-0 bg-gradient-to-br from-purple-900/20 via-black to-indigo-900/20 -z-10"></div>
+    <div class="fixed top-0 right-0 w-96 h-96 bg-purple-600/10 rounded-full blur-3xl -z-10"></div>
+
+    <!-- هدر -->
+    <header class="sticky top-0 bg-black/60 backdrop-blur-2xl border-b border-white/5 z-40">
+        <div class="max-w-md mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <div class="w-9 h-9 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-purple-500/30">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="font-bold text-sm" data-fa="پنل Xray" data-en="Xray Panel">پنل Xray</h1>
+                    <p class="text-white/40 text-xs">v1.0</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <button onclick="toggleLang()" class="bg-white/5 border border-white/10 rounded-full px-3 py-1.5 text-xs hover:bg-white/10 transition">
+                    <span id="langBtn">🇬🇧 EN</span>
+                </button>
+                <a href="{{ url_for('logout') }}" class="bg-red-500/10 border border-red-500/20 text-red-400 rounded-full px-3 py-1.5 text-xs hover:bg-red-500/20 transition" data-fa="خروج" data-en="Logout">خروج</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-md mx-auto px-4 pt-6 space-y-4">
+
+        <!-- خوش‌آمد -->
+        <div class="bg-gradient-to-br from-purple-600/20 to-indigo-600/20 border border-purple-500/20 rounded-2xl p-5">
+            <p class="text-white/60 text-xs" data-fa="خوش آمدی 👋" data-en="Welcome 👋">خوش آمدی 👋</p>
+            <h2 class="text-xl font-bold mt-1" data-fa="سرویس شما فعال است" data-en="Your service is active">سرویس شما فعال است</h2>
+            <div class="flex items-center gap-2 mt-3">
+                <span class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
+                <span class="text-green-400 text-xs" data-fa="آنلاین" data-en="Online">آنلاین</span>
+            </div>
+        </div>
+
+        <!-- QR Code -->
+        <div class="bg-white/5 border border-white/10 rounded-2xl p-5">
+            <h3 class="font-semibold mb-4 flex items-center gap-2">
+                <span class="w-1 h-5 bg-purple-500 rounded-full"></span>
+                <span data-fa="کد QR کانفیگ" data-en="Config QR Code">کد QR کانفیگ</span>
+            </h3>
+            <div class="bg-white rounded-xl p-4 flex items-center justify-center">
+                <canvas id="qrcode"></canvas>
+            </div>
+            <p class="text-white/40 text-xs text-center mt-3" data-fa="با اپلیکیشن کلاینت اسکن کنید" data-en="Scan with your client app">با اپلیکیشن کلاینت اسکن کنید</p>
+        </div>
+
+        <!-- اطلاعات کانفیگ -->
+        <div class="bg-white/5 border border-white/10 rounded-2xl p-5 space-y-3">
+            <h3 class="font-semibold mb-2 flex items-center gap-2">
+                <span class="w-1 h-5 bg-indigo-500 rounded-full"></span>
+                <span data-fa="جزئیات اتصال" data-en="Connection Details">جزئیات اتصال</span>
+            </h3>
+
+            <div class="bg-black/40 rounded-xl p-3">
+                <p class="text-white/40 text-xs mb-1" data-fa="پروتکل" data-en="Protocol">پروتکل</p>
+                <p class="font-mono text-sm">VLESS + WS + TLS</p>
+            </div>
+
+            <div class="bg-black/40 rounded-xl p-3">
+                <p class="text-white/40 text-xs mb-1" data-fa="آدرس سرور" data-en="Server Address">آدرس سرور</p>
+                <p class="font-mono text-sm break-all">{{ domain }}</p>
+            </div>
+
+            <div class="bg-black/40 rounded-xl p-3">
+                <p class="text-white/40 text-xs mb-1">UUID</p>
+                <p class="font-mono text-xs break-all">{{ uuid }}</p>
+            </div>
+
+            <div class="bg-black/40 rounded-xl p-3">
+                <p class="text-white/40 text-xs mb-1" data-fa="مسیر WS" data-en="WS Path">مسیر WS</p>
+                <p class="font-mono text-sm">/{{ ws_path }}</p>
+            </div>
+        </div>
+
+        <!-- دکمه کپی لینک -->
+        <div class="bg-white/5 border border-white/10 rounded-2xl p-5">
+            <h3 class="font-semibold mb-3 flex items-center gap-2">
+                <span class="w-1 h-5 bg-green-500 rounded-full"></span>
+                <span data-fa="لینک اشتراک" data-en="Subscription Link">لینک اشتراک</span>
+            </h3>
+            <div class="bg-black/40 rounded-xl p-3 mb-3 max-h-24 overflow-auto">
+                <p class="font-mono text-xs text-white/70 break-all" id="vlessLink">{{ vless_link }}</p>
+            </div>
+            <button onclick="copyLink()" id="copyBtn"
+                class="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-semibold py-3 rounded-xl shadow-lg shadow-purple-500/30 transition active:scale-95"
+                data-fa="📋 کپی لینک" data-en="📋 Copy Link">📋 کپی لینک</button>
+        </div>
+
+    </main>
+
+    <script>
+        const vlessLink = `{{ vless_link }}`;
+
+        // ساخت QR Code
+        QRCode.toCanvas(document.getElementById('qrcode'), vlessLink, {
+            width: 220,
+            margin: 1,
+            color: { dark: '#000000', light: '#ffffff' }
+        });
+
+        // کپی لینک
+        function copyLink() {
+            navigator.clipboard.writeText(vlessLink);
+            const btn = document.getElementById('copyBtn');
+            const original = btn.textContent;
+            btn.textContent = '✅ ' + (document.getElementById('htmlRoot').getAttribute('lang') === 'fa' ? 'کپی شد!' : 'Copied!');
+            setTimeout(() => btn.textContent = original, 2000);
+        }
+
+        // تغییر زبان
+        function toggleLang() {
+            const html = document.getElementById('htmlRoot');
+            const btn = document.getElementById('langBtn');
+            const isFa = html.getAttribute('lang') === 'fa';
+            const newLang = isFa ? 'en' : 'fa';
+            
+            html.setAttribute('lang', newLang);
+            html.setAttribute('dir', isFa ? 'ltr' : 'rtl');
+            btn.textContent = isFa ? '🇮🇷 FA' : '🇬🇧 EN';
+            
+            document.querySelectorAll('[data-fa]').forEach(el => {
+                el.textContent = el.getAttribute('data-' + newLang);
+            });
+            
+            localStorage.setItem('lang', newLang);
+        }
+
+        if (localStorage.getItem('lang') === 'en') toggleLang();
+    </script>
+</body>
+</html>
