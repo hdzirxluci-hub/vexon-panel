@@ -14,6 +14,7 @@
     <!-- پس‌زمینه -->
     <div class="fixed inset-0 bg-gradient-to-br from-purple-900/20 via-black to-indigo-900/20 -z-10"></div>
     <div class="fixed top-0 right-0 w-96 h-96 bg-purple-600/10 rounded-full blur-3xl -z-10"></div>
+    <div class="fixed bottom-0 left-0 w-96 h-96 bg-indigo-600/10 rounded-full blur-3xl -z-10"></div>
 
     <!-- هدر -->
     <header class="sticky top-0 bg-black/60 backdrop-blur-2xl border-b border-white/5 z-40">
@@ -39,6 +40,17 @@
     </header>
 
     <main class="max-w-md mx-auto px-4 pt-6 space-y-4">
+
+        <!-- پیام‌های flash -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="bg-green-500/10 border border-green-500/30 text-green-300 text-sm rounded-xl p-3 text-center">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
 
         <!-- خوش‌آمد -->
         <div class="bg-gradient-to-br from-purple-600/20 to-indigo-600/20 border border-purple-500/20 rounded-2xl p-5">
@@ -90,7 +102,21 @@
             </div>
         </div>
 
-        <!-- دکمه کپی لینک -->
+        <!-- تنظیمات کانفیگ -->
+        <div class="bg-white/5 border border-white/10 rounded-2xl p-5">
+            <h3 class="font-semibold mb-3 flex items-center gap-2">
+                <span class="w-1 h-5 bg-yellow-500 rounded-full"></span>
+                <span data-fa="تنظیمات کانفیگ" data-en="Config Settings">تنظیمات کانفیگ</span>
+            </h3>
+            <form method="POST" action="{{ url_for('regenerate') }}" onsubmit="return confirmRegenerate()">
+                <button type="submit"
+                    class="w-full bg-yellow-500/10 border border-yellow-500/30 text-yellow-300 hover:bg-yellow-500/20 font-semibold py-3 rounded-xl transition active:scale-95"
+                    data-fa="🔄 ساخت UUID جدید" data-en="🔄 Generate New UUID">🔄 ساخت UUID جدید</button>
+            </form>
+            <p class="text-white/40 text-xs text-center mt-3" data-fa="با ساخت UUID جدید، کانفیگ قبلی از کار میفته" data-en="New UUID will invalidate the old config">با ساخت UUID جدید، کانفیگ قبلی از کار میفته</p>
+        </div>
+
+        <!-- لینک اشتراک -->
         <div class="bg-white/5 border border-white/10 rounded-2xl p-5">
             <h3 class="font-semibold mb-3 flex items-center gap-2">
                 <span class="w-1 h-5 bg-green-500 rounded-full"></span>
@@ -120,9 +146,19 @@
         function copyLink() {
             navigator.clipboard.writeText(vlessLink);
             const btn = document.getElementById('copyBtn');
+            const isFa = document.getElementById('htmlRoot').getAttribute('lang') === 'fa';
             const original = btn.textContent;
-            btn.textContent = '✅ ' + (document.getElementById('htmlRoot').getAttribute('lang') === 'fa' ? 'کپی شد!' : 'Copied!');
+            btn.textContent = isFa ? '✅ کپی شد!' : '✅ Copied!';
             setTimeout(() => btn.textContent = original, 2000);
+        }
+
+        // تایید ساخت UUID جدید
+        function confirmRegenerate() {
+            const isFa = document.getElementById('htmlRoot').getAttribute('lang') === 'fa';
+            const msg = isFa 
+                ? 'مطمئنی؟ کانفیگ قدیمی از کار میفته!' 
+                : 'Are you sure? The old config will stop working!';
+            return confirm(msg);
         }
 
         // تغییر زبان
