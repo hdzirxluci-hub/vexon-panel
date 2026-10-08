@@ -1,10 +1,6 @@
 FROM python:3.11-slim
 
-# نصب ابزارهای لازم
-RUN apt-get update && apt-get install -y \
-    curl \
-    unzip \
-    && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y curl unzip && rm -rf /var/lib/apt/lists/*
 
 # نصب Xray Core
 RUN curl -L -o /tmp/xray.zip https://github.com/XTLS/Xray-core/releases/latest/download/Xray-linux-64.zip \
@@ -14,14 +10,12 @@ RUN curl -L -o /tmp/xray.zip https://github.com/XTLS/Xray-core/releases/latest/d
 
 WORKDIR /app
 
-# نصب پکیج‌های پایتون
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# کپی فایل‌ها
 COPY . .
 
-RUN chmod +x /app/start.sh
+RUN mkdir -p /app/data && chmod +x /app/start.sh
 
 EXPOSE 8080
 
